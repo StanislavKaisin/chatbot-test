@@ -53,6 +53,15 @@ export enum timeSchedule {
   lecture6 = "16:00 - 17:20",
 }
 
+export enum workingDays {
+  Monday,
+  Tuesday,
+  Wendnesday,
+  Thursday,
+  Friday,
+  Saturday,
+}
+
 export enum StudentsGroup {
   studentsGroup1,
   studentsGroup2,
@@ -62,6 +71,7 @@ export enum StudentsGroup {
 export interface Schedule {
   classroom: Classroom;
   time: timeSchedule;
+  dayOfWeek: workingDays[];
   subject: Subject;
   teacher: Teacher;
   studentsGroup: StudentsGroup;
