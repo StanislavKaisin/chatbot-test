@@ -6,6 +6,7 @@ import { Request, Response, NextFunction } from "express";
 import { PORT } from "./const";
 import { db } from "./db";
 import { Teacher } from "./models";
+import { queryBuilder } from "./utils";
 
 const app = express();
 const port: number = +process.env.PORT || PORT;
@@ -22,7 +23,41 @@ app.get("/teachers", (req: Request, res: Response) => {
   db.getConnection((err: Error, connection: any) => {
     if (err) throw err;
     console.log(`connected as id ${connection.threadId}`);
+    console.log(`SELECT * from teachers`);
     connection.query("SELECT * from teachers", (err: Error, rows: any) => {
+      if (!err) {
+        res.send(rows);
+      } else {
+        console.log(err);
+        res.status(500).send({ error: err });
+      }
+    });
+  });
+});
+
+//get by query
+app.get("/teachers", (req: Request, res: Response) => {
+  db.getConnection((err: Error, connection: any) => {
+    if (err) throw err;
+    console.log(`connected as id ${connection.threadId}`);
+    let queryString = "";
+    let queryArr = [];
+    if (Object.values(req.query).length === 0) {
+      console.log(`SELECT * from teachers`);
+      queryString = `SELECT * from teachers`;
+      connection.query(queryString, (err: Error, rows: any) => {
+        if (!err) {
+          res.send(rows);
+        } else {
+          console.log(err);
+        }
+      });
+    } else {
+      queryString = queryBuilder(req).queryString;
+      queryArr = queryBuilder(req).queryArr;
+    }
+    console.log(queryString);
+    connection.query(queryString, [...queryArr], (err: Error, rows: any) => {
       if (!err) {
         res.send(rows);
       } else {
@@ -39,8 +74,9 @@ app.get("/teachers/:id", (req: Request, res: Response) => {
     if (err) throw err;
     console.log(`connected as id ${connection.threadId}`);
     const id: string = req.params.id;
+    console.log(`SELECT * from teachers WHERE id = ?`);
     connection.query(
-      "SELECT * from beers WHERE id = ?",
+      "SELECT * from teachers WHERE id = ?",
       [id],
       (err: Error, rows: any) => {
         if (!err) {
@@ -60,8 +96,9 @@ app.delete("/teachers/:id", (req: Request, res: Response) => {
     if (err) throw err;
     console.log(`connected as id ${connection.threadId}`);
     const id: string = req.params.id;
+    console.log(`DELETE from teachers WHERE id = ?`);
     connection.query(
-      "DELETE from beers WHERE id = ?",
+      "DELETE from teachers WHERE id = ?",
       [id],
       (err: Error, rows: any) => {
         if (!err) {
@@ -101,6 +138,7 @@ app.post("/teachers", (req: Request, res: Response) => {
       !sex
     )
       return res.status(400).send(`Some of the parameters are missing.`);
+    console.log(`INSERT INTO teachers SET ?`);
     connection.query(
       "INSERT INTO teachers SET ?",
       {
