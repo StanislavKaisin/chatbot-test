@@ -1,10 +1,13 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const mysql = require("mysql");
+
+import { Request, Response, NextFunction } from "express";
 
 import { PORT } from "./const";
 
 const app = express();
-const port = process.env.PORT || PORT;
+const port: number = +process.env.PORT || PORT;
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
